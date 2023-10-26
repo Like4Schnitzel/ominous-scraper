@@ -4,6 +4,7 @@ if base_link == "":
     base_link = input("base_link seems to not be hardcoded. Please enter it (program will most likely error if incorrect): ")
     base_link = base_link.lstrip("https://").rstrip("/")
 
+from http.client import IncompleteRead
 import os
 import subprocess
 import sys
@@ -25,7 +26,7 @@ import urllib.request
 import requests
 
 def download_post():
-    global completed_downloads#
+    global completed_downloads
     global repeats
     #generating post index
     if direction == "r":
@@ -86,16 +87,23 @@ def download_post():
         #otherwise pick another post instead (don't mark this as a succesful download by incrementing i)
         if repeats - completed_downloads - 1 == len(total_posts):
             repeats -= 1
+
+        completed_downloads += 1
         return
     
     if not os.path.exists(tags):
         os.mkdir(tags)
 
     try:
-        #downloading the image/video
-        r = urllib.request.urlopen(image_link)
-        with open(filename, "wb") as file:
-            file.write(r.read())
+        while True:
+            try:
+                #downloading the image/video
+                r = urllib.request.urlopen(image_link)
+                with open(filename, "wb") as file:
+                    file.write(r.read())
+                break
+            except IncompleteRead:
+                pass
     #in case of 404 not found
     except Exception:
         #attempt to get link through img src
@@ -111,16 +119,21 @@ def download_post():
         if image_link != None:
             j = len(image_link) - image_link.rfind(".")
             filename = f"{tags}/{tags} [{post_id}]{image_link[-j:image_link.rfind('?')]}"
-            
-            r = urllib.request.urlopen(image_link)
         else:
             #if it is set to download everything, but one post can't be found, decrease amount to download by 1
             if repeats - completed_downloads - 1 == len(total_posts):
                 repeats -= 1
+            completed_downloads += 1
             return
         
-        with open(filename, "wb") as file:
-            file.write(r.read())
+        while True:
+            try:
+                r = urllib.request.urlopen(image_link)
+                with open(filename, "wb") as file:
+                    file.write(r.read())
+                break
+            except IncompleteRead:
+                pass
 
     completed_downloads += 1
 
