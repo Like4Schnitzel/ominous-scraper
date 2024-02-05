@@ -1,29 +1,18 @@
+from http.client import IncompleteRead
+import os
+import sys
+import random
+import time
+import threading
+import urllib.request
+from bs4 import BeautifulSoup
+import requests
+
 base_link = ""
 
 if base_link == "":
     base_link = input("base_link seems to not be hardcoded. Please enter it (program will most likely error if incorrect): ")
     base_link = base_link.lstrip("https://").rstrip("/")
-
-from http.client import IncompleteRead
-import os
-import subprocess
-import sys
-import pkg_resources
-import random
-import time
-import threading
-
-#make sure additional packages are installed
-required = {'urllib3', 'requests', 'beautifulsoup4', 'bs4', 'lxml'}
-installed = {pkg.key for pkg in pkg_resources.working_set}
-missing = required - installed
-if missing:
-    python = sys.executable
-    subprocess.check_call([python, '-m', 'pip', 'install', *missing], stdout=subprocess.DEVNULL)
-
-from bs4 import BeautifulSoup
-import urllib.request
-import requests
 
 def download_post():
     global completed_downloads
