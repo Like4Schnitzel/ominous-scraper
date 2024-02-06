@@ -4,6 +4,7 @@ import sys
 import random
 import time
 import threading
+import hashlib
 import urllib.request
 from bs4 import BeautifulSoup
 import requests
@@ -11,8 +12,10 @@ import requests
 base_link = ""
 
 if base_link == "":
-    base_link = input("base_link seems to not be hardcoded. Please enter it (program will most likely error if incorrect): ")
-    base_link = base_link.lstrip("https://").rstrip("/")
+    base_link = input("base_link seems to not be hardcoded. Please enter it: ")
+    base_link = base_link.lstrip("https://").lstrip("www.").rstrip("/")
+    if hashlib.sha256(base_link.encode('UTF-8')).hexdigest() != "3b3a641a4889558dce3b793971c66f4851970ae2485ee33045c7b0dbc0bb2cdf":
+        raise ValueError("Wrong link.")
 
 def download_post():
     global completed_downloads
@@ -141,6 +144,12 @@ if os.path.exists("taglist.txt"):
     taglist_file = "taglist.txt"
 elif os.path.exists(".taglist.txt"):
     taglist_file = ".taglist.txt"
+else:
+    program_dir = os.path.dirname(os.path.realpath(__file__))
+    if os.path.exists(f"{program_dir}/taglist.txt"):
+        taglist_file = f"{program_dir}/taglist.txt"
+    elif os.path.exists(f"{program_dir}/.taglist.txt"):
+        taglist_file = f"{program_dir}/.taglist.txt"
 if taglist_file != "":
     print(f"Found {taglist_file}, adding to tags.")
     with open(taglist_file, "r") as f:
